@@ -53,7 +53,31 @@ int chercher_client(int Num){
 }
 
 
-
+void Modifier_EnLocation(int id){
+	FILE *Fich,*F;
+  	fflush(stdin);
+    F=fopen("Voiture.txt","r");
+    Fich=fopen("voiture_tmp.txt","a");
+    do{
+    	fscanf(F,"%d\t%s\t%s\t%s\t%d\t%d\t%s\n",&voiture.idVoiture,&voiture.marque,&voiture.nomVoiture,&voiture.couleur,
+		&voiture.nbplaces,&voiture.prixJour,&voiture.EnLocation);
+        if(id == voiture.idVoiture){
+        	if(strcmp(voiture.EnLocation,"oui") == 0){
+        		strcpy(voiture.EnLocation,"non");
+				fflush(stdin);
+			}else{
+				strcpy(voiture.EnLocation,"oui");
+				fflush(stdin);
+			}
+      	}
+      	fprintf(Fich,"%d\t%s\t%s\t%s\t%d\t%d\t%s\n",voiture.idVoiture,voiture.marque,voiture.nomVoiture,voiture.couleur,voiture.nbplaces,
+		voiture.prixJour,voiture.EnLocation);
+    }while(!feof(F));
+    fclose(F);
+    fclose (Fich);
+    remove("Voiture.txt");
+    rename("voiture_tmp.txt","Voiture.txt");
+}
 
 
 int chercher_contrat(float Num){
@@ -123,7 +147,7 @@ void Louer_voitures(){
 	scanf("%d",&contrat.debut.mois);
 	fflush(stdin);
 	printf("donner la date du debut (jour) : ");
-	scanf("%d",&contrat.debut.mois);
+	scanf("%d",&contrat.debut.jour);
 	fflush(stdin);
 	printf("donner la date du fin (anne) : ");
 	scanf("%d",&contrat.fin.anne);
@@ -142,12 +166,12 @@ void Louer_voitures(){
     fclose(F);   
 }
 
+
 void Visualiser_contrat(){
 	float num;
     printf("donner le numero de contrat pour le recherche : ");
     scanf("%f",&num);
-    FILE * F;
-    F=fopen("contrat.txt","r");
+    FILE * F=fopen("ContratsLocations.txt","r");
     do{	
 	fscanf(F,"%f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t\n",&contrat.numContrat,&contrat.idVoiture,&contrat.idClient,&contrat.debut.anne,&contrat.debut.mois,&contrat.debut.jour,
 	&contrat.fin.anne,&contrat.fin.mois,&contrat.fin.jour,&contrat.cout);	
@@ -239,7 +263,31 @@ void Modifier_contrat(){
     printf("la modification est reussi");
 }
 
-void contrat_menu(){
+Retourner_voitures(){
+	int id;
+	printf("entrer le Id de voiture que vous voulez retourner : ");
+	scanf("%d",&id);
+	fflush(stdin);
+    FILE * Fich,*F;
+	F=fopen("ContratsLocations.txt","r");
+    Fich=fopen("contrat_tmp.txt","a");
+    do{
+    	fscanf(F,"%f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t\n",&contrat.numContrat,&contrat.idVoiture,&contrat.idClient,&contrat.debut.anne,&contrat.debut.mois,&contrat.debut.jour,
+		&contrat.fin.anne,&contrat.fin.mois,&contrat.fin.jour,&contrat.cout);
+    	if (id != contrat.idVoiture){
+               fprintf(Fich,"%f\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t\n",contrat.numContrat,contrat.idVoiture,contrat.idClient,contrat.debut.anne,contrat.debut.mois,contrat.debut.jour,
+	contrat.fin.anne,contrat.fin.mois,contrat.fin.jour,contrat.cout);
+        }
+    }while(!feof(F));
+    fclose(Fich);
+    fclose (F);
+    remove("ContratsLocations.txt");
+    rename("contrat_tmp.txt","ContratsLocations.txt");
+    printf("retourn reussite");
+    Modifier_EnLocation(contrat.idVoiture);
+}
+
+contrat_menu(){
 	int choix;
 		do{
 		printf("\n                           \xda\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xbf");
@@ -267,7 +315,7 @@ void contrat_menu(){
 		switch(choix){
 			case 1: system("cls");Visualiser_contrat();break;
 			case 2: system("cls");Louer_voitures();break;
-			case 3: system("cls");break;
+			case 3: system("cls");Retourner_voitures();break;
 			case 4: system("cls");Modifier_contrat();break;
 			case 5: system("cls");Supprimer_contrat();break;
 			case 6: system("cls");main_menu();break;
@@ -275,11 +323,6 @@ void contrat_menu(){
 	}while(1);
 	
 }
-
-
-
-
-
 
 
 
@@ -399,7 +442,7 @@ void Lister_client(){
     fclose(F);
 }
 
-void client_menu(){
+client_menu(){
 	int choix;
 		do{
 		printf("\n                           \xda\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xbf");
@@ -442,7 +485,8 @@ int chercher_voiture(int Num){
     FILE * F;
   	F=fopen("Voiture.txt","r");
 	do{
-    fscanf(F,"%d\t%s\t%s\t%s\t%d\t%d\t%s\n",&voiture.idVoiture,&voiture.marque,&voiture.nomVoiture,&voiture.couleur,&voiture.nbplaces,
+    fscanf(F,"%d\t%s\t%s\t%s\t%d\t%d\t%s\n",&voiture.idVoiture,
+	&voiture.marque,&voiture.nomVoiture,&voiture.couleur,&voiture.nbplaces,
 	&voiture.prixJour,&voiture.EnLocation);
     fflush(stdin);
     if(voiture.idVoiture==Num){
@@ -619,7 +663,7 @@ void voiture_menu(){
 
 
 
-void main_menu(){
+main_menu(){
     int choix;
     do{
 	printf("\n                               \xda\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xc4\xbf");
